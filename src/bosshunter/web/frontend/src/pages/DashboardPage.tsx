@@ -76,9 +76,9 @@ function taskStatusText(status: string) {
 }
 
 function taskStatusClass(status: string) {
-  if (status === 'failed') return 'border-red-100 bg-red-50'
-  if (status === 'completed' || status === 'stopped') return 'border-card-border bg-white'
-  return 'border-primary/20 bg-[#FFF0E5]'
+  if (status === 'failed') return 'border-danger/20 bg-danger/10'
+  if (status === 'completed' || status === 'stopped') return 'border-card-border bg-card'
+  return 'border-primary/20 bg-secondary'
 }
 
 function taskStatusTitle(status: string) {
@@ -276,13 +276,13 @@ function PreflightPanel({
 
   return (
     <div className={`mt-3 rounded-3xl border p-4 ${
-      errors ? 'border-red-200 bg-red-50' : 'border-amber-200 bg-amber-50'
+      errors ? 'border-danger/25 bg-danger/10' : 'border-warning/25 bg-warning/10'
     }`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {errors
             ? <XCircle className="h-5 w-5 text-danger" />
-            : <AlertTriangle className="h-5 w-5 text-amber-600" />}
+            : <AlertTriangle className="h-5 w-5 text-warning" />}
           <div className="text-sm font-black text-foreground">{heading}</div>
         </div>
         <div className="flex items-center gap-2">
@@ -303,12 +303,12 @@ function PreflightPanel({
           return (
             <div
               key={`${check.id}-${check.title}`}
-              className={`rounded-2xl border bg-white px-3 py-3 ${isError ? 'border-red-200' : 'border-amber-200'}`}
+              className={`rounded-2xl border bg-card px-3 py-3 ${isError ? 'border-danger/25' : 'border-warning/25'}`}
             >
               <div className="flex items-start gap-2">
                 {isError
                   ? <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
-                  : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />}
+                  : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />}
                 <div>
                   <div className="text-xs font-black text-muted">{check.title}</div>
                   <div className="mt-0.5 text-sm font-black text-foreground">{check.message}</div>
@@ -605,7 +605,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
 
   return (
     <div className="space-y-5">
-      <section id="today-workbench" className="scroll-mt-6 rounded-3xl border border-card-border bg-white p-5 shadow-sm">
+      <section id="today-workbench" className="scroll-mt-6 rounded-3xl border border-card-border bg-card p-5 shadow-sm">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <div className="text-xs font-black tracking-[0.18em] text-primary">TODAY WORKBENCH</div>
@@ -623,7 +623,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
                 </div>
               )}
             </div>
-            <span className="rounded-full bg-[#FFF0E5] px-3 py-2 text-xs font-black text-primary">
+            <span className="rounded-full bg-secondary px-3 py-2 text-xs font-black text-primary">
               {activeTask ? `${activeTask.label}中` : '当前空闲'}
             </span>
           </div>
@@ -657,8 +657,8 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
                   isActive
                     ? 'border-2 border-primary bg-primary text-white shadow-xl shadow-primary/20'
                     : disabled
-                      ? 'cursor-not-allowed border border-card-border bg-white text-muted opacity-45'
-                      : 'border border-card-border bg-[#FFFCFA] text-foreground hover:border-primary/60 hover:shadow-md'
+                      ? 'cursor-not-allowed border border-card-border bg-card text-muted opacity-45'
+                      : 'border border-card-border bg-surface text-foreground hover:border-primary/60 hover:shadow-md'
                 }`}
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
@@ -674,19 +674,19 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
             )
           })}
         </div>
-        {notice && <div className="mt-3 rounded-2xl bg-[#FFF0E5] px-4 py-3 text-sm text-primary">{notice}</div>}
+        {notice && <div className="mt-3 rounded-2xl bg-secondary px-4 py-3 text-sm text-primary">{notice}</div>}
         {preflightChecks.some(check => check.status !== 'pass') && (
           <PreflightPanel checks={preflightChecks} checking={Boolean(modePending)} onRetry={retryPreflight} />
         )}
-        {error && <div className="mt-3 rounded-2xl bg-red-50 px-4 py-3 text-sm text-danger">{error}</div>}
+        {error && <div className="mt-3 rounded-2xl bg-danger/10 px-4 py-3 text-sm text-danger">{error}</div>}
         {visibleTask && (
-          <div className="mt-3 rounded-3xl border border-card-border bg-[#FFFCFA] p-4">
+          <div className="mt-3 rounded-3xl border border-card-border bg-surface p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <div className="text-sm font-black">任务运行状态</div>
                 <p className="mt-1 text-xs leading-5 text-muted">如果点击后浏览器没有反应，请先打开 BOSS 直聘并确认已登录；常见失败原因是 BOSS 未登录或 Chrome 调试连接不可用。</p>
               </div>
-              <span className="rounded-full bg-[#FFF0E5] px-3 py-1 text-xs font-black text-primary">
+              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-black text-primary">
                 {visibleTask.label}
               </span>
             </div>
@@ -702,7 +702,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
               {visibleTask.metrics && taskMetricItems.some(item => item.key in visibleTask.metrics!) && (
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
                   {taskMetricItems.map(item => (
-                    <div key={item.key} className="rounded-xl border border-card-border bg-white px-3 py-2">
+                    <div key={item.key} className="rounded-xl border border-card-border bg-card px-3 py-2">
                       <div className="text-[10px] font-bold text-muted">{item.label}</div>
                       <div className="mt-0.5 text-lg font-black text-foreground">{visibleTask.metrics?.[item.key] ?? 0}</div>
                     </div>
@@ -712,17 +712,17 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
             </div>
             {visibleTask.progress?.platforms && <CollectionProgressPanel progress={visibleTask.progress} />}
             {visibleTask.error && visibleTaskError && (
-              <div className="mt-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-danger">
+              <div className="mt-3 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
                 <div className="font-black">{visibleTaskError.title}</div>
                 <p className="mt-1 text-xs leading-5">{visibleTaskError.detail}</p>
                 <details className="mt-2 text-xs text-muted">
                   <summary className="cursor-pointer font-bold">查看原始错误</summary>
-                  <pre className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-white p-2">{visibleTask.error}</pre>
+                  <pre className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-card p-2">{visibleTask.error}</pre>
                 </details>
               </div>
             )}
             {visibleTask.stop_reason && (
-              <div className={`mt-3 rounded-2xl px-3 py-3 text-sm ${visibleTask.stop_reason === 'daily_limit' ? 'border border-amber-200 bg-amber-50 text-amber-800' : 'bg-[#FFF0E5] text-primary'}`}>
+              <div className={`mt-3 rounded-2xl px-3 py-3 text-sm ${visibleTask.stop_reason === 'daily_limit' ? 'border border-warning/25 bg-warning/10 text-warning' : 'bg-secondary text-primary'}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="font-black">{visibleTask.stop_reason === 'daily_limit' ? '本次未发送' : '任务说明'}</div>
@@ -741,7 +741,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
       </section>
 
       {workbench.send_quota?.exhausted && (
-        <section className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-amber-800">
+        <section className="rounded-3xl border border-warning/25 bg-warning/10 p-5 text-warning">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h3 className="text-lg font-black">今日发送额度已用完</h3>
@@ -762,7 +762,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
             <h3 className="text-lg font-black">求职数据</h3>
             <p className="mt-0.5 text-xs text-muted">今日看行动节奏，累计看岗位池沉淀。</p>
           </div>
-          <div className="inline-flex rounded-full border border-card-border bg-white p-1">
+          <div className="inline-flex rounded-full border border-card-border bg-card p-1">
             {([
               { value: 'today' as const, label: '今日数据' },
               { value: 'total' as const, label: '累计数据' },
@@ -790,7 +790,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
               ? '实时待处理数量'
               : `${statsScope === 'today' ? '累计' : '今日'} ${alternateFunnel[item.key] || 0}`
             return (
-              <div key={item.key} className="rounded-2xl border border-card-border bg-white p-4">
+              <div key={item.key} className="rounded-2xl border border-card-border bg-card p-4">
                 <div className="text-xs text-muted">{statsScope === 'today' ? item.todayLabel : item.totalLabel}</div>
                 <div className={`mt-1 text-2xl font-black ${item.highlight ? 'text-primary' : 'text-foreground'}`}>
                   {value}
@@ -802,7 +802,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
         </div>
       </section>
 
-      <section className="rounded-3xl border border-card-border bg-white p-5">
+      <section className="rounded-3xl border border-card-border bg-card p-5">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-black">优先处理：HR 要简历 / 定制简历下载</h3>
@@ -813,10 +813,10 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
         {workbench.needs_resume.length ? (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {workbench.needs_resume.slice(0, 4).map(job => (
-              <div key={job.id} className="rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+              <div key={job.id} className="rounded-2xl border border-card-border bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="font-black">{job.company}｜{job.title}</div>
-                  <span className="rounded-full bg-[#FFF0E5] px-2 py-1 text-[11px] font-black text-primary">待发简历</span>
+                  <span className="rounded-full bg-secondary px-2 py-1 text-[11px] font-black text-primary">待发简历</span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-muted">HR 已请求简历，系统已准备定制化简历下载入口。</p>
                 <div className="mt-3 flex gap-2">
@@ -827,12 +827,12 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-card-border bg-[#FFFCFA] p-5 text-sm text-muted">当前没有 HR 要简历事项。</div>
+          <div className="rounded-2xl border border-dashed border-card-border bg-surface p-5 text-sm text-muted">当前没有 HR 要简历事项。</div>
         )}
       </section>
 
       {workbench.send_errors.length > 0 && (
-        <section className="rounded-3xl border border-red-100 bg-red-50 p-5">
+        <section className="rounded-3xl border border-danger/20 bg-danger/10 p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-black text-danger">发送失败待处理</h3>
@@ -845,13 +845,13 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
           </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {workbench.send_errors.map(job => (
-              <div key={job.id} className="rounded-2xl border border-red-100 bg-white p-4">
+              <div key={job.id} className="rounded-2xl border border-danger/20 bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-black">{job.company}｜{job.title}</div>
                     <div className="mt-1 text-xs text-danger">最近失败原因：{job.last_error || '发送失败，等待重试'}</div>
                   </div>
-                  <span className="rounded-full bg-red-50 px-2 py-1 text-[11px] font-black text-danger">发送失败</span>
+                  <span className="rounded-full bg-danger/10 px-2 py-1 text-[11px] font-black text-danger">发送失败</span>
                 </div>
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted">{job.greeting || '招呼语已生成，等待重新发送。'}</p>
                 <div className="mt-3 flex gap-2">
@@ -867,7 +867,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
       )}
 
       {pendingGreetingJobs.length > 0 && (
-        <section className="rounded-3xl border border-primary/20 bg-[#FFF0E5] p-5">
+        <section className="rounded-3xl border border-primary/20 bg-secondary p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-black">待发送招呼语</h3>
@@ -880,13 +880,13 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
           </div>
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             {pendingGreetingJobs.map(job => (
-              <div key={job.id} className="rounded-2xl border border-primary/20 bg-white p-4">
+              <div key={job.id} className="rounded-2xl border border-primary/20 bg-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-black">{job.company}｜{job.title}</div>
                     <div className="mt-1 text-xs text-primary">已生成招呼语，等待发送</div>
                   </div>
-                  <span className="rounded-full bg-[#FFF0E5] px-2 py-1 text-[11px] font-black text-primary">待发送</span>
+                  <span className="rounded-full bg-secondary px-2 py-1 text-[11px] font-black text-primary">待发送</span>
                 </div>
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted">{job.greeting || '招呼语已生成，等待发送。'}</p>
                 <div className="mt-3 flex gap-2">
@@ -901,7 +901,7 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
         </section>
       )}
 
-      <section className="rounded-3xl border border-card-border bg-white p-5">
+      <section className="rounded-3xl border border-card-border bg-card p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-lg font-black">今日待确认</h3>
@@ -936,12 +936,12 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
             ))}
           </div>
         ) : todayJobs.length ? (
-          <div className="rounded-2xl border border-dashed border-card-border bg-[#FFFCFA] p-5 text-center text-sm text-muted">
+          <div className="rounded-2xl border border-dashed border-card-border bg-surface p-5 text-center text-sm text-muted">
             <p>没有符合当前条件的岗位</p>
             <Button className="mt-3" variant="secondary" size="sm" onClick={() => setTodayFilters({ ...EMPTY_JOB_FILTERS })}>重置筛选</Button>
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-card-border bg-[#FFFCFA] p-5 text-sm text-muted">今天暂时没有待确认岗位。</div>
+          <div className="rounded-2xl border border-dashed border-card-border bg-surface p-5 text-sm text-muted">今天暂时没有待确认岗位。</div>
         )}
       </section>
 
@@ -959,14 +959,14 @@ export default function DashboardPage({ view = 'workbench' }: DashboardPageProps
 
 function CollectionProgressPanel({ progress }: { progress: CollectionProgress }) {
   return (
-    <div className="mt-3 rounded-2xl border border-primary/20 bg-[#FFF0E5] p-4">
+    <div className="mt-3 rounded-2xl border border-primary/20 bg-secondary p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm font-black text-primary">多平台采集进度</div>
         <div className="text-xs font-bold text-muted">{progress.outcome === 'running' ? '执行中' : progress.outcome || '已结束'}</div>
       </div>
       <div className="mt-3 grid gap-2 md:grid-cols-2">
         {Object.entries(progress.platforms || {}).map(([platform, state]) => (
-          <div key={platform} className="rounded-xl border border-card-border bg-white p-3">
+          <div key={platform} className="rounded-xl border border-card-border bg-card p-3">
             <div className="flex items-center justify-between text-sm font-black">
               <span>{platform === 'boss' ? 'BOSS 直聘' : platform === 'zhilian' ? '智联招聘' : '前程无忧'}</span>
               <span>新增 {state.new}</span>
@@ -985,7 +985,7 @@ function CollectionProgressPanel({ progress }: { progress: CollectionProgress })
 
 function JobActionCard({ job, selected, onToggle, onDetail, onReject }: { job: Job; selected: boolean; onToggle: () => void; onDetail: () => void; onReject: () => void }) {
   return (
-    <div className={`rounded-2xl border p-4 ${selected ? 'border-primary bg-[#FFFCFA]' : 'border-card-border bg-[#FFFCFA]'}`}>
+    <div className={`rounded-2xl border p-4 ${selected ? 'border-primary bg-surface' : 'border-card-border bg-surface'}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="font-black">{job.company}｜{job.title}</div>
@@ -1006,7 +1006,7 @@ function JobActionCard({ job, selected, onToggle, onDetail, onReject }: { job: J
 function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-6">
-      <div className="max-h-[86vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-card-border bg-white p-6 shadow-2xl">
+      <div className="max-h-[86vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-card-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
             <div className="text-xs font-black tracking-[0.18em] text-primary">岗位详情</div>
@@ -1023,15 +1023,15 @@ function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
           <InfoBlock label="匹配分" value={String(job.score || '-')} />
           <InfoBlock label="定制简历" value={job.resume_path || '未生成'} />
         </div>
-        <div className="mt-4 rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+        <div className="mt-4 rounded-2xl border border-card-border bg-surface p-4">
           <div className="text-sm font-black">评分理由</div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{job.score_reason || '-'}</p>
         </div>
-        <div className="mt-4 rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+        <div className="mt-4 rounded-2xl border border-card-border bg-surface p-4">
           <div className="text-sm font-black">招呼语</div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{job.greeting || '未生成'}</p>
         </div>
-        <div className="mt-4 rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+        <div className="mt-4 rounded-2xl border border-card-border bg-surface p-4">
           <div className="text-sm font-black">JD</div>
           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted">{job.jd || '-'}</p>
         </div>
@@ -1042,7 +1042,7 @@ function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
 
 function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+    <div className="rounded-2xl border border-card-border bg-surface p-4">
       <div className="text-xs text-muted">{label}</div>
       <div className="mt-1 font-bold text-foreground">{value}</div>
     </div>
@@ -1321,7 +1321,7 @@ function JobsPoolView() {
           <Button variant="ghost" size="sm" onClick={() => setShowRecycleBin(false)}>返回岗位池</Button>
           <Button variant="secondary" size="sm" onClick={() => void loadRecycleBin()} disabled={recycleLoading}>刷新回收站</Button>
         </div>
-        {notice && <div className="rounded-xl bg-[#FFF0E5] px-4 py-3 text-sm text-primary">{notice}</div>}
+        {notice && <div className="rounded-xl bg-secondary px-4 py-3 text-sm text-primary">{notice}</div>}
         <RecycleBinPanel
           jobs={recycleJobs}
           selectedIds={recycleSelectedIds}
@@ -1333,9 +1333,9 @@ function JobsPoolView() {
         />
         {permanentDeleteIds.length > 0 && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true">
-            <div className="w-full max-w-lg rounded-3xl border border-red-200 bg-white p-6 shadow-2xl">
+            <div className="w-full max-w-lg rounded-3xl border border-danger/25 bg-card p-6 shadow-2xl">
               <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-6 w-6 shrink-0 text-danger" /><div><h3 className="text-xl font-black">确认永久删除</h3><p className="mt-2 text-sm leading-6 text-muted">将永久删除 {permanentDeleteIds.length} 条岗位及其历史，无法恢复。存在发送或回复证据的岗位会被后端拒绝删除。</p></div></div>
-              <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-3 text-sm font-bold"><input type="checkbox" checked={permanentDeleteAcknowledged} onChange={event => setPermanentDeleteAcknowledged(event.target.checked)} className="mt-0.5 h-4 w-4 accent-danger" /><span>我确认永久删除，并了解此操作无法撤销。</span></label>
+              <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-danger/20 bg-danger/10 p-3 text-sm font-bold"><input type="checkbox" checked={permanentDeleteAcknowledged} onChange={event => setPermanentDeleteAcknowledged(event.target.checked)} className="mt-0.5 h-4 w-4 accent-danger" /><span>我确认永久删除，并了解此操作无法撤销。</span></label>
               <div className="mt-6 flex justify-end gap-3"><Button variant="secondary" size="sm" onClick={() => setPermanentDeleteIds([])}>取消</Button><Button variant="destructive" size="sm" disabled={!permanentDeleteAcknowledged} onClick={() => void confirmPermanentDelete()}>永久删除</Button></div>
             </div>
           </div>
@@ -1345,7 +1345,7 @@ function JobsPoolView() {
   }
 
   return (
-    <div className="rounded-3xl border border-card-border bg-white p-5">
+    <div className="rounded-3xl border border-card-border bg-card p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-black">岗位池</h2>
@@ -1370,7 +1370,7 @@ function JobsPoolView() {
         <Button variant="secondary" size="sm" disabled={!items.length} onClick={toggleCurrentPage}>
           {allPageSelected ? '取消选择本页' : '选择本页'}
         </Button>
-        <span className="rounded-full bg-[#FFF0E5] px-3 py-2 font-bold text-primary">已选择 {selectedIds.length} 条</span>
+        <span className="rounded-full bg-secondary px-3 py-2 font-bold text-primary">已选择 {selectedIds.length} 条</span>
         {selectedIds.length > 0 && <Button variant="ghost" size="sm" onClick={() => setSelectedIds([])}>清空选择</Button>}
         <Button variant="destructive" size="sm" disabled={!selectedIds.length} onClick={() => void softDelete(selectedIds)}>移入回收站</Button>
         <Button size="sm" disabled={!selectedIds.length} onClick={() => void deliverSelectedJobs()}>
@@ -1382,25 +1382,25 @@ function JobsPoolView() {
         <Button variant="secondary" size="sm" onClick={() => setShowScoreDialog(true)}>评分选项</Button>
         <ExportMenu onExport={exportJobs} hasSelection={selectedIds.length > 0} hasFiltered={total > 0} />
       </div>
-      {notice && <div className="mb-4 rounded-xl bg-[#FFF0E5] px-4 py-3 text-sm text-primary">{notice}</div>}
+      {notice && <div className="mb-4 rounded-xl bg-secondary px-4 py-3 text-sm text-primary">{notice}</div>}
       {deliveryTask && (
-        <div className="mb-4 rounded-2xl border border-card-border bg-[#FFFCFA] p-4">
+        <div className="mb-4 rounded-2xl border border-card-border bg-surface p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <div className="text-sm font-black">投递队列</div>
               <p className="mt-1 text-xs text-muted">只展示已人工确认的 BOSS 发送任务；智联和 51job 不会进入此队列。</p>
             </div>
-            <span className="rounded-full bg-[#FFF0E5] px-3 py-1 text-xs font-black text-primary">
+            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-black text-primary">
               {deliveryTask.status === 'running' ? '处理中' : deliveryTask.status === 'completed' ? '已完成' : deliveryTask.status === 'failed' ? '失败' : deliveryTask.status}
             </span>
           </div>
-          <div className="mt-3 rounded-xl border border-card-border bg-white px-3 py-2 text-sm">
+          <div className="mt-3 rounded-xl border border-card-border bg-card px-3 py-2 text-sm">
             <div className="font-bold">{deliveryTask.logs?.[deliveryTask.logs.length - 1] || '队列已创建，等待执行'}</div>
             <div className="mt-1 text-xs text-muted">任务 ID：{deliveryTask.id}</div>
           </div>
         </div>
       )}
-      {error && <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-danger">{error}</div>}
+      {error && <div className="mb-4 rounded-xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">{error}</div>}
       <JobsTable
         jobs={items}
         page={page}
@@ -1441,7 +1441,7 @@ function ExportMenu({
       <select
         value={format}
         onChange={event => setFormat(event.target.value as 'xlsx' | 'csv')}
-        className="rounded-xl border border-card-border bg-white px-2 py-2 text-xs outline-none focus:border-primary"
+        className="rounded-xl border border-card-border bg-card px-2 py-2 text-xs outline-none focus:border-primary"
       >
         <option value="xlsx">XLSX</option>
         <option value="csv">CSV</option>
@@ -1606,7 +1606,7 @@ function MonitorExecutionView({
   }
 
   return (
-    <div className="rounded-3xl border border-card-border bg-white p-5">
+    <div className="rounded-3xl border border-card-border bg-card p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-black">监测执行</h2>
@@ -1620,7 +1620,7 @@ function MonitorExecutionView({
             <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
             {refreshing ? '刷新中' : '立即刷新'}
           </Button>
-          <span className="rounded-full bg-[#FFF0E5] px-3 py-2 text-xs font-black text-primary">待处理 {pendingItems.length}</span>
+          <span className="rounded-full bg-secondary px-3 py-2 text-xs font-black text-primary">待处理 {pendingItems.length}</span>
         </div>
       </div>
       <div className="mb-4 flex flex-wrap gap-2">
@@ -1643,7 +1643,7 @@ function MonitorExecutionView({
           )
         })}
       </div>
-      {notice && <div className="mb-3 rounded-2xl bg-[#FFF0E5] px-4 py-3 text-sm text-primary">{notice}</div>}
+      {notice && <div className="mb-3 rounded-2xl bg-secondary px-4 py-3 text-sm text-primary">{notice}</div>}
       <div className="space-y-3">
         {displayedHistory.map((item, index) => {
           const canReply = item.action === 'reply_pending'
@@ -1658,10 +1658,10 @@ function MonitorExecutionView({
           const systemFailureReason = parsed.systemReason || (isResumeFailure ? '未获得更具体的错误信息，请查看运行日志。' : '')
           const targetUrl = monitorChatUrl(item)
           return (
-            <div key={item.id || `${item.created_at}-${index}`} className="grid gap-3 rounded-2xl border border-card-border bg-[#FFFCFA] p-4 lg:grid-cols-[130px_1fr_160px]">
+            <div key={item.id || `${item.created_at}-${index}`} className="grid gap-3 rounded-2xl border border-card-border bg-surface p-4 lg:grid-cols-[130px_1fr_160px]">
               <div className="text-xs text-muted">
                 <div>{item.created_at}</div>
-                <div className="mt-2 rounded-full bg-white px-2 py-1 text-center font-bold text-primary">{getActionLabel(item.action)}</div>
+                <div className="mt-2 rounded-full bg-card px-2 py-1 text-center font-bold text-primary">{getActionLabel(item.action)}</div>
               </div>
               <div>
                 <div className="font-black">{item.company || '岗位'}｜{item.title || '监测记录'}</div>
@@ -1676,7 +1676,7 @@ function MonitorExecutionView({
                       </div>
                     )}
                     {conversationMessages.length > 0 && (
-                      <div className="overflow-hidden rounded-2xl border border-card-border bg-white">
+                      <div className="overflow-hidden rounded-2xl border border-card-border bg-card">
                         <div className="flex items-center justify-between border-b border-card-border px-3 py-1.5">
                           <span className="text-xs font-black text-foreground">聊天记录</span>
                         </div>
@@ -1685,7 +1685,7 @@ function MonitorExecutionView({
                             const fromHr = message.sender === 'hr'
                             return (
                               <div key={`${item.id}-${messageIndex}-${message.sender}`} className="grid grid-cols-[28px_minmax(0,1fr)] items-start gap-2 px-3 py-1.5">
-                                <div className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black ${fromHr ? 'bg-[#FFF0E5] text-primary' : 'bg-emerald-50 text-emerald-700'}`}>
+                                <div className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black ${fromHr ? 'bg-secondary text-primary' : 'bg-success/10 text-success'}`}>
                                   {fromHr ? 'HR' : 'AI'}
                                 </div>
                                 <p className="min-w-0 whitespace-pre-wrap break-words text-[13px] leading-5 text-foreground">{message.text}</p>
@@ -1696,7 +1696,7 @@ function MonitorExecutionView({
                       </div>
                     )}
                     {isResumeFailure && (
-                      <div className="rounded-2xl border border-danger/30 bg-red-50 p-3">
+                      <div className="rounded-2xl border border-danger/30 bg-danger/10 p-3">
                         <div className="text-xs font-black text-danger">系统失败原因</div>
                         <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-danger">{systemFailureReason}</p>
                       </div>
@@ -1707,7 +1707,7 @@ function MonitorExecutionView({
                         <textarea
                           value={draftFor(item)}
                           onChange={event => setReplyDrafts(prev => ({ ...prev, [item.id]: event.target.value }))}
-                          className="min-h-[92px] w-full rounded-2xl border border-card-border bg-white p-3 text-sm leading-6 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          className="min-h-[92px] w-full rounded-2xl border border-card-border bg-card p-3 text-sm leading-6 text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                     ) : null}
@@ -1743,7 +1743,7 @@ function MonitorExecutionView({
             </div>
           )
         })}
-        {!visibleHistory.length && <div className="rounded-2xl border border-dashed border-card-border bg-[#FFFCFA] p-5 text-sm text-muted">暂无待处理 HR 问题。</div>}
+        {!visibleHistory.length && <div className="rounded-2xl border border-dashed border-card-border bg-surface p-5 text-sm text-muted">暂无待处理 HR 问题。</div>}
       </div>
     </div>
   )

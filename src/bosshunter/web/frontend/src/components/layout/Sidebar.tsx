@@ -40,7 +40,7 @@ export function Sidebar({ pendingReplies: pendingRepliesProp }: SidebarProps) {
   }, [pendingRepliesProp])
 
   return (
-    <aside className="w-60 border-r border-card-border bg-white flex flex-col">
+    <aside className="w-60 border-r border-card-border bg-card flex flex-col">
       <div className="h-16 flex items-center px-5 border-b border-card-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-primary text-white flex items-center justify-center shadow-lg shadow-primary/20">
@@ -61,8 +61,8 @@ export function Sidebar({ pendingReplies: pendingRepliesProp }: SidebarProps) {
             className={({ isActive }) =>
               `flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm transition-colors ${
                 isActive
-                  ? 'bg-[#FFF0E5] text-primary font-black'
-                  : 'text-muted hover:text-foreground hover:bg-[#FFFCFA]'
+                  ? 'bg-secondary text-primary font-black'
+                  : 'text-muted hover:text-foreground hover:bg-surface'
               }`
             }
           >
@@ -82,7 +82,7 @@ export function Sidebar({ pendingReplies: pendingRepliesProp }: SidebarProps) {
           href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
-          className="relative flex items-center rounded-2xl border border-card-border bg-[#FFFCFA] px-3 py-3 text-xs font-black text-foreground transition-colors hover:border-primary/60 hover:text-primary"
+          className="relative flex items-center rounded-2xl border border-card-border bg-surface px-3 py-3 text-xs font-black text-foreground transition-colors hover:border-primary/60 hover:text-primary"
         >
           <Github className="absolute left-3 h-4 w-4" />
           <span className="mx-auto flex items-center justify-center gap-2">
