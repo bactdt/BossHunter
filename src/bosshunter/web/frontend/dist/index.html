@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="zh-CN" class="dark">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BossHunter Dashboard</title>
-    <script type="module" crossorigin src="/assets/index-D9eI57fh.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CSlRw-Tx.css">
+    <script>
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('bosshunter-theme')
+          var theme = stored === 'light' || stored === 'dark' ? stored : null
+          if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          document.documentElement.classList.toggle('dark', theme === 'dark')
+        } catch (e) {}
+      })()
+    </script>
+    <script type="module" crossorigin src="/assets/index-BUTfwC2i.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CSAFRPQx.css">
   </head>
   <body class="bg-background text-foreground antialiased">
     <div id="root"></div>
