@@ -6,9 +6,11 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { TagsInput } from '@/components/ui/tags-input'
 import { CityMultiSelect, type CityOption } from '@/components/config/CityMultiSelect'
+import { ResumeUploadSection } from '@/components/config/ResumeUploadSection'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Save, RotateCcw, Upload, Trash2, ChevronDown, ChevronRight } from 'lucide-react'
+import { Save, RotateCcw, ChevronDown, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { PLATFORM_LABELS, PLATFORM_SHORT_LABELS } from '@/lib/platforms'
 
 const AI_SERVICES = {
   anthropic: {
@@ -42,7 +44,7 @@ const AI_SERVICES = {
 } as const
 
 type AiService = keyof typeof AI_SERVICES
-type PlatformId = 'boss' | 'zhilian' | '51job'
+type PlatformId = 'boss' | 'zhilian' | '51job' | 'liepin'
 
 const BOSS_FILTER_OPTIONS = {
   job_type: ['全职', '兼职', '实习'],
@@ -60,17 +62,15 @@ export default function ConfigPage() {
     search: true,
     ...(requestedSection ? { [requestedSection]: true } : {}),
   }))
-  const [resumeInfo, setResumeInfo] = useState<any>(null)
-  const [resumeUploadError, setResumeUploadError] = useState('')
   const [aiTest, setAiTest] = useState<{ testing: boolean; ok?: boolean; message?: string }>({ testing: false })
   const [cityOptions, setCityOptions] = useState<CityOption[]>([])
   const [zhilianCityOptions, setZhilianCityOptions] = useState<CityOption[]>([])
   const [job51CityOptions, setJob51CityOptions] = useState<CityOption[]>([])
+  const [liepinCityOptions, setLiepinCityOptions] = useState<CityOption[]>([])
   const [cityRefreshing, setCityRefreshing] = useState(false)
   const [cityMessage, setCityMessage] = useState('')
 
   useEffect(() => {
-    fetch('/api/resume').then(r => r.json()).then(setResumeInfo).catch(() => {})
     fetch('/api/cities', { cache: 'no-store' })
       .then(r => r.json())
       .then(data => {
@@ -90,38 +90,16 @@ export default function ConfigPage() {
         if (Array.isArray(data.cities)) setJob51CityOptions(data.cities)
       })
       .catch(() => {})
+    fetch('/api/cities?platform=liepin', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data.cities)) setLiepinCityOptions(data.cities)
+      })
+      .catch(() => {})
   }, [])
 
   const toggleSection = (key: string) => {
     setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }))
-  }
-
-  const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setResumeUploadError('')
-    const form = new FormData()
-    form.append('file', file)
-    try {
-      const res = await fetch('/api/resume/upload', { method: 'POST', body: form })
-      const data = await res.json()
-      if (!res.ok || !data.success) {
-        setResumeUploadError(data.error || '简历上传失败')
-        return
-      }
-      setResumeInfo({ filename: data.filename, size: data.size, path: data.path })
-      updateConfig('profile.resume_path', data.path)
-    } catch {
-      setResumeUploadError('网络错误，简历上传失败')
-    } finally {
-      e.target.value = ''
-    }
-  }
-
-  const handleResumeDelete = async () => {
-    await fetch('/api/resume', { method: 'DELETE' })
-    setResumeInfo(null)
-    updateConfig('profile.resume_path', '')
   }
 
   const handleAiTest = async () => {
@@ -212,7 +190,7 @@ export default function ConfigPage() {
   }
 
   const updatePlatformCities = (platform: PlatformId, cities: string[]) => {
-    const platformCityOptions = platform === 'zhilian' ? zhilianCityOptions : job51CityOptions
+    const platformCityOptions = platform === 'zhilian' ? zhilianCityOptions : platform === 'liepin' ? liepinCityOptions : job51CityOptions
     const cityCodes = platform !== 'boss'
       ? Object.fromEntries(cities.map(city => {
         const found = platformCityOptions.find(option => option.name.replace(/市$/, '') === city.replace(/市$/, ''))
@@ -227,7 +205,7 @@ export default function ConfigPage() {
   const setPlatformEnabled = (platform: PlatformId, enabled: boolean) => {
     updateConfig(`platforms.${platform}.enabled`, enabled)
     const currentOrder: PlatformId[] = Array.isArray(config?.collection?.default_order)
-      ? config.collection.default_order.filter((item: unknown): item is PlatformId => item === 'boss' || item === 'zhilian' || item === '51job')
+      ? config.collection.default_order.filter((item: unknown): item is PlatformId => item === 'boss' || item === 'zhilian' || item === '51job' || item === 'liepin')
       : ['boss'] as PlatformId[]
     const nextOrder = enabled
       ? [...currentOrder, ...(!currentOrder.includes(platform) ? [platform] : [])]
@@ -236,8 +214,8 @@ export default function ConfigPage() {
   }
 
   const setCollectionOrder = (value: string) => {
-    const enabled = (['boss', 'zhilian', '51job'] as PlatformId[]).filter(platform => config?.platforms?.[platform]?.enabled !== false)
-    const requested = value.split(',').filter((item): item is PlatformId => item === 'boss' || item === 'zhilian' || item === '51job')
+    const enabled = (['boss', 'zhilian', '51job', 'liepin'] as PlatformId[]).filter(platform => config?.platforms?.[platform]?.enabled !== false)
+    const requested = value.split(',').filter((item): item is PlatformId => item === 'boss' || item === 'zhilian' || item === '51job' || item === 'liepin')
     const next = [...requested, ...enabled.filter(platform => !requested.includes(platform))]
     updateConfig('collection.default_order', next.length ? next : ['boss'])
   }
@@ -292,28 +270,10 @@ export default function ConfigPage() {
         {/* Profile Section */}
         <SectionCard title="个人信息" sectionKey="profile" expanded={expandedSections} toggle={toggleSection}>
           <div className="space-y-4">
-            {/* Resume upload */}
-            <div>
-              <label className="block text-xs text-foreground mb-2">简历文件</label>
-              {resumeInfo ? (
-                <div className="flex items-center gap-3 rounded-md border border-card-border bg-surface p-3">
-                  <span className="text-sm font-bold text-foreground">📄 {resumeInfo.filename}</span>
-                  <span className="text-xs text-muted">({(resumeInfo.size / 1024).toFixed(1)} KB)</span>
-                  <button onClick={handleResumeDelete} className="ml-auto text-danger hover:text-danger">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-card-border p-6 transition-colors hover:border-primary/50 hover:bg-surface">
-                  <Upload className="mb-2 h-6 w-6 text-muted" />
-                  <span className="text-sm text-muted">拖拽或点击上传 (.md、.docx、.pdf)</span>
-                  <input type="file" accept=".md,.docx,.pdf,application/pdf" onChange={handleResumeUpload} className="hidden" />
-                </label>
-              )}
-              {resumeUploadError && (
-                <p className="mt-2 rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">{resumeUploadError}</p>
-              )}
-            </div>
+            <ResumeUploadSection
+              currentResumePath={config.profile?.resume_path || ''}
+              updateConfig={updateConfig}
+            />
             <div className="grid grid-cols-2 gap-4">
               <Field label="最高学历">
                 <Select value={config.profile?.education || ''} onChange={e => updateConfig('profile.education', e.target.value)}>
@@ -354,6 +314,23 @@ export default function ConfigPage() {
               min={0}
               max={200}
             />
+            <Field label={`薪资上限放宽倍数：${config.profile?.salary_ceil_ratio ?? 1.5}`}>
+              <Slider
+                value={config.profile?.salary_ceil_ratio ?? 1.5}
+                onChange={value => updateConfig('profile.salary_ceil_ratio', value)}
+                min={1}
+                max={5}
+                step={0.1}
+              />
+              <p className="mt-1 text-xs text-muted">按岗位薪资区间下限判断；下限超过最高薪资 × 放宽倍数时会在 AI 评分前跳过。</p>
+            </Field>
+            <div className="flex items-center justify-between rounded-xl border border-card-border bg-surface px-3 py-2">
+              <div>
+                <label className="text-xs text-foreground">过滤面议/无法解析薪资</label>
+                <p className="mt-1 text-xs text-muted">关闭后这类岗位会保留给 AI 综合判断。</p>
+              </div>
+              <Switch checked={config.profile?.filter_unparsed_salary ?? true} onChange={v => updateConfig('profile.filter_unparsed_salary', v)} />
+            </div>
             <Field label="排除关键词">
               <TagsInput value={config.profile?.deal_breakers || []} onChange={v => updateConfig('profile.deal_breakers', v)} placeholder="如：外包、996" />
             </Field>
@@ -376,12 +353,12 @@ export default function ConfigPage() {
         <SectionCard title="搜索设置" sectionKey="search" expanded={expandedSections} toggle={toggleSection}>
           <div className="space-y-4">
             <p className="rounded-xl border border-card-border bg-surface px-3 py-2 text-xs leading-5 text-muted">
-              智联和前程无忧只自动采集、评分和生成招呼语；岗位池会提供原平台链接，你完成投递后可手动标记“已发送”。BossHunter 不会替你在这两个平台发送、回复或监听。
+              智联、前程无忧和猎聘只自动采集、评分和生成招呼语；岗位池会提供原平台链接，你完成投递后可手动标记“已发送”。BossHunter 不会替你在这些平台发送、回复或监听。
             </p>
-            {(['boss', 'zhilian', '51job'] as PlatformId[]).map(platform => {
+            {(['boss', 'zhilian', '51job', 'liepin'] as PlatformId[]).map(platform => {
               const search = platformSearch(platform)
-              const label = platform === 'boss' ? 'BOSS 直聘' : platform === 'zhilian' ? '智联招聘' : '前程无忧'
-              const platformCityOptions = platform === 'zhilian' ? zhilianCityOptions : job51CityOptions
+              const label = PLATFORM_LABELS[platform]
+              const platformCityOptions = platform === 'zhilian' ? zhilianCityOptions : platform === 'liepin' ? liepinCityOptions : job51CityOptions
               const enabled = config.platforms?.[platform]?.enabled ?? platform === 'boss'
               const cities = Array.isArray(search.cities) && search.cities.length
                 ? search.cities
@@ -398,7 +375,7 @@ export default function ConfigPage() {
                     <span className="text-xs text-muted">{enabled ? '已启用' : '未启用'}</span>
                   </div>
                   {enabled && <div className="mt-4 space-y-3">
-                    <Field label="搜索关键词">
+                    <Field label="搜索关键词" hint={platform === 'boss' ? '输入岗位后请按回车键确认，多岗位用","隔开，否则配置无法保存。' : undefined}>
                       <TagsInput value={Array.isArray(search.keywords) ? search.keywords : []} onChange={value => updatePlatformSearch(platform, 'keywords', value)} placeholder="如：人力、产品运营" />
                     </Field>
                     <Field label="搜索城市">
@@ -412,7 +389,7 @@ export default function ConfigPage() {
                       /> : <>
                         <Input list={`config-${platform}-city-options`} value={cityInput} onChange={event => updatePlatformCities(platform, event.target.value.split(/[,，]/).map(value => value.trim()).filter(Boolean))} placeholder={platform === '51job' ? '如：上海' : '如：深圳'} />
                         <datalist id={`config-${platform}-city-options`}>{platformCityOptions.map(city => <option key={city.code} value={city.name} />)}</datalist>
-                        <p className="mt-1 text-xs text-muted">{platform === 'zhilian' ? '智联' : '51job'}只使用已验证的城市编码；当前内置 {platformCityOptions.length} 个城市。</p>
+                        <p className="mt-1 text-xs text-muted">{PLATFORM_SHORT_LABELS[platform]}只使用已验证的城市编码；当前内置 {platformCityOptions.length} 个城市。</p>
                         {!!cities.length && <div className="mt-2 flex flex-wrap gap-1">{cities.map((city: string) => {
                           const matched = platformCityOptions.find(option => option.name.replace(/市$/, '') === city.replace(/市$/, ''))
                           return <span key={city} className={`rounded-full px-2 py-1 text-xs ${matched ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>{city} · {matched ? '已自动识别' : '暂未收录'}</span>
@@ -422,6 +399,14 @@ export default function ConfigPage() {
                     <div className="grid gap-3 md:grid-cols-2">
                       <Field label="最大页数">
                         <Input type="number" value={search.max_pages || (platform === 'boss' ? 3 : 1)} onChange={event => updatePlatformSearch(platform, 'max_pages', Number(event.target.value))} min={1} max={10} />
+                        {platform === 'boss' && bossTheoreticalPages > 0 && (
+                          <p className={`mt-1 rounded-lg px-3 py-2 text-xs ${bossTheoreticalExceedsLimit ? 'bg-warning/10 font-bold text-warning' : 'bg-success/10 text-success'}`}>
+                            理论最多 {bossTheoreticalPages} 页（{bossEstimateKeywords.length} 个关键词 × {bossEstimateCities.length} 个城市 × {bossEstimateMaxPages} 页）。
+                            {bossTheoreticalExceedsLimit
+                              ? ` 已超过每日 ${bossDailySearchLimit} 页上限，到达上限后会提示并停止 BOSS 当前轮。`
+                              : ` 未超过每日 ${bossDailySearchLimit} 页上限。`}
+                          </p>
+                        )}
                       </Field>
                       <Field label="排序">
                         <Select value={search.sort || 'default'} onChange={event => updatePlatformSearch(platform, 'sort', event.target.value)}>
@@ -469,14 +454,6 @@ export default function ConfigPage() {
                         <p className="mt-1 text-xs text-muted">只接受数字编码；无效内容会被安全忽略。</p>
                       </Field>
                     </div>}
-                    {platform === 'boss' && bossTheoreticalPages > 0 && (
-                      <p className={`rounded-lg px-3 py-2 text-xs ${bossTheoreticalExceedsLimit ? 'bg-warning/10 font-bold text-warning' : 'bg-success/10 text-success'}`}>
-                        理论最多 {bossTheoreticalPages} 页（{bossEstimateKeywords.length} 个关键词 × {bossEstimateCities.length} 个城市 × {bossEstimateMaxPages} 页）。
-                        {bossTheoreticalExceedsLimit
-                          ? ` 已超过每日 ${bossDailySearchLimit} 页上限，到达上限后会提示并停止 BOSS 当前轮。`
-                          : ` 未超过每日 ${bossDailySearchLimit} 页上限。`}
-                      </p>
-                    )}
                   </div>}
                 </div>
               )
@@ -489,7 +466,9 @@ export default function ConfigPage() {
                   <option value="boss,zhilian">BOSS 直聘 → 智联招聘</option>
                   <option value="zhilian,boss">智联招聘 → BOSS 直聘</option>
                   <option value="51job">前程无忧</option>
+                  <option value="liepin">猎聘</option>
                   <option value="boss,zhilian,51job">BOSS → 智联 → 前程无忧</option>
+                  <option value="boss,zhilian,51job,liepin">BOSS → 智联 → 前程无忧 → 猎聘</option>
                 </Select>
               </Field>
               <div className="flex items-center justify-between rounded-xl border border-card-border bg-surface px-3 py-2 text-xs font-bold text-muted">
@@ -789,10 +768,13 @@ function SectionCard({ title, sectionKey, expanded, toggle, children }: {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <div>
-      <label className="block text-xs text-foreground mb-1.5">{label}</label>
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <label className="block text-xs text-foreground">{label}</label>
+        {hint && <span className="text-[11px] leading-4 text-muted">{hint}</span>}
+      </div>
       {children}
     </div>
   )

@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { useTheme } from '@/hooks/useTheme'
 import type { ActivityData } from '@/hooks/useDashboard'
 
 interface TrendChartProps {
@@ -9,18 +8,6 @@ interface TrendChartProps {
 }
 
 export function TrendChart({ data }: TrendChartProps) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === 'dark'
-  const chartColors = {
-    grid: isDark ? '#3A342F' : '#F2E7DE',
-    axis: isDark ? '#A89C92' : '#7A6C61',
-    send: isDark ? '#4ADE80' : '#16A34A',
-    reply: isDark ? '#FBBF24' : '#F59E0B',
-    tooltipBg: isDark ? '#1F1B18' : '#18181B',
-    tooltipBorder: isDark ? '#38312C' : '#27272A',
-    tooltipLabel: '#A1A1AA',
-    tooltipItem: '#E4E4E7',
-  }
   const chartData = useMemo(() => {
     const dayMap: Record<string, { day: string; send: number; reply: number }> = {}
 
@@ -46,23 +33,23 @@ export function TrendChart({ data }: TrendChartProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>7 日趋势</CardTitle>
+        <CardTitle className="font-black text-foreground">7 日趋势</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-              <XAxis dataKey="day" stroke={chartColors.axis} fontSize={12} />
-              <YAxis stroke={chartColors.axis} fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#F2E7DE" />
+              <XAxis dataKey="day" stroke="#7A6C61" fontSize={12} />
+              <YAxis stroke="#7A6C61" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: chartColors.tooltipBg, border: `1px solid ${chartColors.tooltipBorder}`, borderRadius: '6px' }}
-                labelStyle={{ color: chartColors.tooltipLabel }}
-                itemStyle={{ color: chartColors.tooltipItem }}
+                contentStyle={{ background: '#FFFFFF', border: '1px solid #F2E7DE', borderRadius: '12px', boxShadow: '0 4px 12px rgba(251,101,17,0.08)' }}
+                labelStyle={{ color: '#1F1F1F', fontWeight: 700 }}
+                itemStyle={{ color: '#7A6C61', fontSize: '12px' }}
               />
-              <Legend wrapperStyle={{ fontSize: '12px' }} formatter={(value) => <span style={{ color: chartColors.axis }}>{value}</span>} />
-              <Line type="monotone" dataKey="send" name="发送" stroke={chartColors.send} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="reply" name="回复" stroke={chartColors.reply} strokeWidth={2} dot={false} />
+              <Legend wrapperStyle={{ fontSize: '12px', color: '#7A6C61' }} />
+              <Line type="monotone" dataKey="send" name="发送" stroke="#16A34A" strokeWidth={2} dot={{ r: 3, fill: '#16A34A' }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="reply" name="回复" stroke="#FB6511" strokeWidth={2} dot={{ r: 3, fill: '#FB6511' }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

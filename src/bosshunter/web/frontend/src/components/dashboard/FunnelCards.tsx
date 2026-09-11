@@ -6,10 +6,10 @@ interface FunnelCardsProps {
 }
 
 const funnelSteps = [
-  { key: '采集总数', color: 'text-info' },
-  { key: '初筛通过', color: 'text-cyan' },
-  { key: 'AI评分', color: 'text-success' },
-  { key: '人工确认', color: 'text-warning' },
+  { key: '采集总数', color: 'text-info', bg: 'bg-info/10' },
+  { key: '初筛通过', color: 'text-cyan', bg: 'bg-cyan/10' },
+  { key: 'AI评分', color: 'text-success', bg: 'bg-success/10' },
+  { key: '人工确认', color: 'text-warning', bg: 'bg-warning/10' },
 ]
 
 export function FunnelCards({ data }: FunnelCardsProps) {
@@ -23,13 +23,13 @@ export function FunnelCards({ data }: FunnelCardsProps) {
         const rate = prevCount > 0 && i > 0 ? ((count / prevCount) * 100).toFixed(1) + '%' : ''
 
         return (
-          <Card key={step.key} className="border-card-border">
+          <Card key={step.key}>
             <CardHeader className="pb-2 p-4">
-              <CardTitle className="text-xs">{step.key}</CardTitle>
+              <CardTitle className="text-xs text-muted font-bold">{step.key}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
-              <div className={`text-2xl font-bold ${step.color}`}>{count}</div>
-              {rate && <p className="text-xs text-muted mt-1">{rate}</p>}
+              <div className={`text-2xl font-black ${step.color}`}>{count}</div>
+              {rate && <p className="text-xs text-muted mt-1">转化率 {rate}</p>}
             </CardContent>
           </Card>
         )
